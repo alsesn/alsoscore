@@ -6,6 +6,7 @@ import lombok.Setter;
 import me.alsesn.alsoscore.model.enums.SessionStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
