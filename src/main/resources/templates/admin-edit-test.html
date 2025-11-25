@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(title='Редактирование Теста', content=~{::content})}">
+<body>
+
+<div th:fragment="content">
+    <a th:href="@{/admin/tests}" class="btn btn-sm btn-outline-secondary mb-3">← Назад к тестам</a>
+    <h1 class="mb-2 text-primary" th:text="'Редактирование Теста: ' + ${test.title}"></h1>
+    <p class="text-muted mb-4 fs-6">
+        <strong class="text-dark">Описание:</strong> <span th:text="${test.description}"></span>
+        <span class="ms-3 badge text-bg-info">ID: <span th:text="${test.id}"></span></span>
+    </p>
+
+    <div class="card shadow-lg mb-5 border-success">
+        <div class="card-header bg-success text-white">
+            <h5>➕ Добавить Новый Вопрос</h5>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/api/v1/tests/{testId}/questions(testId=${test.id})}" th:object="${questionDto}" method="post">
+                <div class="mb-3">
+                    <label for="questionText" class="form-label fw-bold">Текст Вопроса:</label>
+                    <textarea id="questionText" th:field="*{text}" class="form-control" required rows="2" placeholder="Введите полный текст вопроса"></textarea>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label for="type" class="form-label">Тип Вопроса:</label>
+                        <select id="type" th:field="*{type}" class="form-select">
+                            <option th:value="'CHOICE'">Выбор (CHOICE)</option>
+                            <option th:value="'INPUT'">Ввод (INPUT)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="scorePoints" class="form-label">Баллы за вопрос:</label>
+                        <input type="number" id="scorePoints" th:field="*{scorePoints}" min="1" class="form-control" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="correctAnswer" class="form-label">Правильный Ответ:</label>
+                        <input type="text" id="correctAnswer" th:field="*{correctAnswer}" class="form-control" required placeholder="Например: C или 14.5">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="options" class="form-label">Варианты Ответов (только для CHOICE, через запятую):</label>
+                    <input type="text" id="options" th:field="*{answerOptions}" class="form-control" placeholder="Например: A) Да, B) Нет, C) Иногда">
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">➕ Добавить Вопрос</button>
+            </form>
+        </div>
+    </div>
+
+    <h2 class="mb-3">Существующие Вопросы (<span th:text="${test.questions.size()}">0</span>)</h2>
+
+    <div th:if="${test.questions.isEmpty()}" class="alert alert-warning text-center">
+        Пока нет вопросов в этом тесте. Добавьте первый вопрос выше.
+    </div>
+
+    <div th:each="question, iterStat : ${test.questions}" class="card mb-3 shadow-sm border-secondary">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h5 class="text-primary mb-2">
+                        Вопрос #<span th:text="${iterStat.index + 1}"></span>
+                    </h5>
+                    <p class="card-text fs-5">
+                        <span th:text="${question.text}"></span>
+                    </p>
+                </div>
+                <div class="text-end flex-shrink-0">
+                    <span class="badge text-bg-dark mb-1" th:text="${question.type}"></span>
+                    <span class="badge text-bg-info ms-2">⚖️ <span th:text="${question.scorePoints}"></span> Баллов</span>
+                </div>
+            </div>
+
+            <div class="border-top pt-2 mt-3 small">
+                <p class="mb-1">
+                    <strong class="text-success">Правильный ответ:</strong> <span th:text="${question.correctAnswer}"></span>
+                </p>
+                <p th:if="${question.answerOptions}" class="mb-0">
+                    <strong class="text-muted">Варианты (CHOICE):</strong> <span th:text="${question.answerOptions}"></span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(title='Начать Тест', content=~{::content})}">
+<body>
+
+<div th:fragment="content">
+    <h1 class="mb-5 text-center text-dark">📝 Доступные Тесты</h1>
+
+    <div th:if="${publishedTests.isEmpty()}" class="alert alert-warning text-center py-4 border-warning">
+        В данный момент нет опубликованных тестов. Загляните позже!
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div th:each="test : ${publishedTests}" class="col">
+            <div class="card h-100 shadow-lg border-primary">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-primary fw-bold mb-3" th:text="${test.title}"></h5>
+                    <p class="card-text text-muted flex-grow-1" th:text="${test.description}"></p>
+                </div>
+                <div class="card-footer bg-light border-top-0 p-3">
+                    <form th:action="@{/user/session/start/{testId}(testId=${test.id})}" method="post">
+                        <button type="submit" class="btn btn-primary w-100 btn-lg">Начать тестирование</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

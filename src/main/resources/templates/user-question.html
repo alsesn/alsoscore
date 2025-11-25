@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(title='Вопрос', content=~{::content})}">
+<body>
+
+<div th:fragment="content">
+    <div class="card shadow-lg mx-auto border-primary" style="max-width: 700px;">
+        <div class="card-header bg-primary text-white p-3">
+            <h4 class="mb-0">Вопрос #<span th:text="${question.id}"></span></h4>
+            <span class="badge text-bg-light float-end">⚖️ <span th:text="${question.scorePoints}"></span> Баллов</span>
+        </div>
+        <div class="card-body p-5">
+            <p class="lead fs-4 text-dark mb-4" th:text="${question.text}"></p>
+
+            <form th:action="@{/user/session/{sessionId}/answer/{questionId}(sessionId=${sessionId}, questionId=${question.id})}" method="post">
+
+                <input type="hidden" name="questionStartTime" th:value="${questionStartTime}">
+
+                <div class="mb-3 mt-4">
+                    <label for="submittedAnswer" class="form-label fs-5 fw-bold text-secondary">Ваш ответ:</label>
+
+                    <div th:switch="${question.type}">
+                        <div th:case="'CHOICE'">
+                            <div class="alert alert-light border border-info py-3 mb-3">
+                                <strong class="text-info">Варианты:</strong> <span th:text="${question.answerOptions}"></span>
+                            </div>
+                            <input type="text" name="submittedAnswer" id="submittedAnswer" class="form-control form-control-lg"
+                                   placeholder="Введите Ваш вариант ответа (A, B, C...) " required>
+                        </div>
+                        <div th:case="'INPUT'">
+                            <input type="text" name="submittedAnswer" id="submittedAnswer" class="form-control form-control-lg"
+                                   placeholder="Введите Ваш ответ здесь" required>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 mt-4 btn-lg">➡️ Отправить ответ и перейти к следующему</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

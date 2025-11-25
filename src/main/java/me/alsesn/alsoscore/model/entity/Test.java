@@ -1,10 +1,12 @@
 package me.alsesn.alsoscore.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import me.alsesn.alsoscore.model.enums.TestStatus;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -24,5 +26,6 @@ public class Test {
     @OneToMany(mappedBy = "test",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
-    private List<Question> questions;
+    @JsonIgnore
+    private List<Question> questions = new ArrayList<>();
 }

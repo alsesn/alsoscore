@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(title='Отчет', content=~{::content})}">
+<body>
+
+<div th:fragment="content">
+    <h1 class="mb-2 text-center text-success">🎉 Тест Завершен!</h1>
+    <h4 class="text-center text-muted mb-5">Детальный Отчет (Session ID: <span th:text="${report.sessionId}"></span>)</h4>
+
+    <div th:if="${report.status.name() != 'REPORT_READY'}" class="alert alert-warning text-center py-4 border-warning">
+        <div class="spinner-border text-warning me-2" role="status"></div>
+        <strong>Отчет еще обрабатывается.</strong> Пожалуйста, подождите или обновите страницу.
+    </div>
+
+    <div th:if="${report.status.name() == 'REPORT_READY'}">
+        <h3 class="mb-4 text-dark">📊 Итоговые Метрики</h3>
+        <div class="row mb-5 g-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white h-100 shadow-lg">
+                    <div class="card-body">
+                        <h5 class="card-title">Сумма баллов</h5>
+                        <p class="card-text display-4 fw-bold" th:text="${report.totalScore}"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white h-100 shadow-lg" th:classappend="${report.correctAnswersPercentage >= 70} ? 'bg-success' : 'bg-danger'">
+                    <div class="card-body">
+                        <h5 class="card-title">Процент успеха</h5>
+                        <p class="card-text display-4 fw-bold" th:text="${#numbers.formatDecimal(report.correctAnswersPercentage, 1, 2)} + '%'"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-dark bg-light h-100 shadow-lg border-secondary">
+                    <div class="card-body">
+                        <h5 class="card-title">Общее время</h5>
+                        <p class="card-text display-4 fw-bold" th:text="${#numbers.formatDecimal(report.totalTimeMillis / 1000, 1, 2)} + ' с'"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-dark bg-light h-100 shadow-lg border-secondary">
+                    <div class="card-body">
+                        <h5 class="card-title">Ср. время на вопрос</h5>
+                        <p class="card-text display-4 fw-bold" th:text="${#numbers.formatDecimal(report.averageTimePerQuestionMillis / 1000, 1, 2)} + ' с'"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="mb-4 text-dark">📋 Детализация Ответов</h3>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover shadow-sm">
+                <thead class="bg-dark text-white">
+                <tr><th>#</th><th>Вопрос</th><th>Ваш ответ</th><th>Верно</th><th>Время (мс)</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="answer, iterStat : ${report.userAnswers}"
+                    th:classappend="${answer.isCorrect} ? 'table-success' : 'table-danger'">
+                    <td th:text="${iterStat.index + 1}"></td>
+                    <td th:text="${answer.question.text}" style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></td>
+                    <td><code th:text="${answer.submittedAnswer}"></code></td>
+                    <td>
+                        <span th:if="${answer.isCorrect}">✅ Правильно</span>
+                        <span th:unless="${answer.isCorrect}">❌ Неправильно</span>
+                    </td>
+                    <td th:text="${answer.timeToSolveMillis}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

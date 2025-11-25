@@ -14,9 +14,7 @@ import me.alsesn.alsoscore.repository.TestSessionRepository;
 import me.alsesn.alsoscore.repository.UserAnswerRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.List;
 
 @Service
@@ -104,7 +102,41 @@ public class TestSessionService {
         s.setStatus(SessionStatus.FINISHED);
         TestSession savedSession = sessionRepository.save(s);
 
-        reportingService.processSessionResultsAsync(savedSession.getSessionId());
+        reportingService.processSessionResultAsync(savedSession.getSessionId());
         return savedSession;
+    }
+
+    @Transactional
+    public UserAnswer submitAnswerWithTimeMetrics(String sessionId,
+                                                  Long questionId,
+                                                  String submittedAnswer,
+                                                  Long questionStartTimeMillis,
+                                                  String solvingLogic) {
+
+        TestSession session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new RuntimeException("Session not found"));
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new RuntimeException("Question not found"));
+
+        LocalDateTime answerSubmitTime = LocalDateTime.now();
+        LocalDateTime questionStartTime = Instant.ofEpochMilli(questionStartTimeMillis)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+
+        long timeToSolveMillis = Duration.between(questionStartTime, answerSubmitTime).toMillis();
+
+        boolean isCorrect = submittedAnswer.equalsIgnoreCase(question.getCorrectAnswer());
+
+        UserAnswer userAnswer = new UserAnswer();
+        userAnswer.setSession(session);
+        userAnswer.setQuestion(question);
+        userAnswer.setSubmittedAnswer(submittedAnswer);
+        userAnswer.setIsCorrect(isCorrect);
+        userAnswer.setQuestionStartTime(questionStartTime);
+        userAnswer.setAnswerSubmitTime(answerSubmitTime);
+        userAnswer.setTimeToSolveMillis(timeToSolveMillis);
+        userAnswer.setSolvingLogicData(solvingLogic);
+
+        return userAnswerRepository.save(userAnswer);
     }
 }

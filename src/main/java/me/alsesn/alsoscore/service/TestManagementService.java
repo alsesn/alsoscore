@@ -7,8 +7,10 @@ import me.alsesn.alsoscore.model.entity.Test;
 import me.alsesn.alsoscore.model.enums.TestStatus;
 import me.alsesn.alsoscore.repository.QuestionRepository;
 import me.alsesn.alsoscore.repository.TestRepository;
+import me.alsesn.alsoscore.repository.TestSessionRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -44,6 +46,17 @@ public class TestManagementService {
     }
 
     public Optional<Test> getTestById(Long tId) {
-        return testRepository.findById(tId);
+        Optional<Test> testOptional = testRepository.findById(tId);
+
+        testOptional.ifPresent(test -> test.getQuestions().size());
+        return testOptional;
+    }
+
+    public List<Test> getAllTest() {
+        return testRepository.findAll();
+    }
+
+    public List<Test> getPublishedTests() {
+        return testRepository.findByStatus(TestStatus.PUBLISHED);
     }
 }
