@@ -148,10 +148,3 @@ Relationships: `Test 1—N Question`, `TestSession N—1 Test`, `UserAnswer N—
 3. Questions are served one at a time (`getNextQuestion`), answers are stored as `UserAnswer` records.
 4. On finish, the session moves to `FINISHED`, and `ReportingService` asynchronously (with a ~2s delay) computes the metrics and moves the session to `REPORT_READY`.
 5. The report (`/reports/{sessionId}`) is only available once the session reaches `REPORT_READY`.
-
-## Known limitations (as-is)
-
-- `userId` on a session is just the `hashCode()` of the username, not a real link to a user entity.
-- In `submitAnswer` (REST), the time to solve a question is hardcoded to 15 seconds instead of being derived from actual user interaction — real time tracking only exists in the web flow (`submitAnswerWithTimeMetrics`).
-- In `TestSessionService.finishSession`, the status check (`status != FINISHED || status == REPORT_READY`) prevents a session from ever being finished while `IN_PROGRESS` — likely a bug worth reviewing.
-- Users are hardcoded in memory (`InMemoryUserDetailsManager`); there's no proper User entity.
